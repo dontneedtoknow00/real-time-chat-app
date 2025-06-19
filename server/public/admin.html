@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="admin-nav">
+        <div class="nav-title">Admin Dashboard</div>
+        <div class="nav-links">
+            <a href="#" class="active" id="dashboard-link">Dashboard</a>
+            <a href="/index.html" id="chat-home-link">Chat Home</a>
+            <a href="#" id="admin-logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- User Management Section -->
+    <section class="admin-section" id="user-management">
+        <h2>User Management</h2>
+        <button class="add-btn" id="add-user-btn">Add New User</button>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th>Language</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    <!-- Users will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Chatroom Management Section -->
+    <section class="admin-section" id="chatroom-management">
+        <h2>Chatroom Management</h2>
+        <button class="add-btn" id="add-chatroom-btn">Create New Chatroom</button>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Chatroom Name</th>
+                        <th>Description</th>
+                        <th>Users</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="chatrooms-table-body">
+                    <!-- Chatrooms will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- User Activity Log Section -->
+    <section class="admin-section" id="activity-log">
+        <h2>User Activity Log</h2>
+        <div class="activity-filters">
+            <input type="date" id="activity-date" class="date-picker">
+            <select id="activity-type">
+                <option value="all">All Activities</option>
+                <option value="login">Login</option>
+                <option value="message">Messages</option>
+                <option value="room">Room Actions</option>
+            </select>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Activity</th>
+                    </tr>
+                </thead>
+                <tbody id="activity-table-body">
+                    <!-- Activity logs will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal" id="user-modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="user-modal-title">Add New User</h2>
+            <form id="user-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="user-language">Preferred Language</label>
+                    <select id="user-language" required>
+                        <option value="English">English</option>
+                        <option value="Spanish">Spanish</option>
+                        <option value="French">French</option>
+                        <option value="German">German</option>
+                        <option value="Chinese">Chinese</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="user-type">Account Type</label>
+                    <select id="user-type" required>
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Save User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Chatroom Modal -->
+    <div class="modal" id="chatroom-modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="chatroom-modal-title">Create New Chatroom</h2>
+            <form id="chatroom-form">
+                <div class="form-group">
+                    <label for="chatroom-name">Chatroom Name</label>
+                    <input type="text" id="chatroom-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="chatroom-description">Description</label>
+                    <textarea id="chatroom-description" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Save Chatroom</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html> 

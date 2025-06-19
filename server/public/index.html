@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Room</title>
+    <link rel="stylesheet" href="style.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"
+      integrity="sha512-Xm9qbB6Pu06k3PUwPj785dyTl6oHxgsv9nHp7ej7nCpAqGZT3OZpsELuCYX05DdonFpTlBpXMOxjavIAIUwr0w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <!-- Registration Page -->
+    <div class="auth-container" id="register-page">
+      <div class="auth-form">
+        <h2>Create Account</h2>
+        <form id="register-form">
+          <div class="form-group">
+            <label for="reg-username">Username</label>
+            <input type="text" id="reg-username" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-email">Email</label>
+            <input type="email" id="reg-email" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-language">Preferred Language</label>
+            <select id="reg-language" required>
+              <option value="English">English</option>
+              <option value="Spanish">Spanish</option>
+              <option value="French">French</option>
+              <option value="German">German</option>
+              <option value="Chinese">Chinese</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="reg-account-type">Account Type</label>
+            <select id="reg-account-type" required>
+              <option value="User">User</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" class="auth-button">Register</button>
+        </form>
+        <p class="auth-switch">Already have an account? <a href="#" id="go-to-login">Login here</a></p>
+      </div>
+    </div>
+
+    <!-- Login Page -->
+    <div class="auth-container" id="login-page" style="display: none;">
+      <div class="auth-form">
+        <h2>Login</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-username">Username</label>
+            <input type="text" id="login-username" required>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" required>
+          </div>
+          <button type="submit" class="auth-button">Login</button>
+        </form>
+        <p class="auth-switch">Don't have an account? <a href="#" id="go-to-register">Register here</a></p>
+      </div>
+    </div>
+
+    <!-- Chat Room Selection -->
+    <div class="login-container" id="room-selection" style="display: none;">
+      <form class="form-join">
+        <input
+          type="text"
+          id="name"
+          maxlength="8"
+          placeholder="Your name"
+          required
+        />
+        <select name="Chat Room" id="room">
+          <option value="" disabled selected>Select Room</option>
+          <option value="Red">Red</option>
+          <option value="Green">Green</option>
+          <option value="Blue">Blue</option>
+        </select>
+        <button id="join" type="submit">Join Chat</button>
+      </form>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div class="chat-container" style="display: none;">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="user-list"></div>
+        <div class="room-list"></div>
+      </div>
+
+      <!-- Main Chat Area -->
+      <div class="main-chat">
+        <!-- Top Bar -->
+        <div class="top-bar">
+          <div class="search-container">
+            <input type="text" placeholder="Search..." class="search-input">
+          </div>
+          <div class="current-user">
+            <span id="current-user-name"></span>
+            <button id="logout" class="logout-btn">Logout</button>
+          </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-area">
+          <ul class="chat-display"></ul>
+          <p class="activity"></p>
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input">
+          <form class="form-msg">
+            <input type="text" id="message" placeholder="Write a message..." required />
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
