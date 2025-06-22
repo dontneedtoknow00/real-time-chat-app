@@ -1,3 +1,9 @@
+// --- DEBUG: Print all environment variables to check for DATABASE_URL ---
+console.log('--- Railway Environment Variables ---');
+console.log(process.env);
+console.log('-----------------------------------');
+// --- END DEBUG ---
+
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
