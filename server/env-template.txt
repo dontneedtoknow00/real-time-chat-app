@@ -1,0 +1,13 @@
+# Database Configuration
+DB_HOST=your-planetscale-host
+DB_USER=your-planetscale-username
+DB_PASSWORD=your-planetscale-password
+DB_NAME=your-planetscale-database
+DB_PORT=3306
+
+# Alternative: Use connection string
+DATABASE_URL=mysql://username:password@hostname:port/database
+
+# Server Configuration
+PORT=3000
+NODE_ENV=production 

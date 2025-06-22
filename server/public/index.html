@@ -76,22 +76,22 @@
 
     <!-- Chat Room Selection -->
     <div class="login-container" id="room-selection" style="display: none;">
-      <form class="form-join">
-        <input
-          type="text"
-          id="name"
-          maxlength="8"
-          placeholder="Your name"
-          required
-        />
-        <select name="Chat Room" id="room">
+        <form class="form-join">
+          <input
+            type="text"
+            id="name"
+            maxlength="8"
+            placeholder="Your name"
+            required
+          />
+          <select name="Chat Room" id="room">
           <option value="" disabled selected>Select Room</option>
-          <option value="Red">Red</option>
-          <option value="Green">Green</option>
-          <option value="Blue">Blue</option>
-        </select>
+            <option value="Red">Red</option>
+            <option value="Green">Green</option>
+            <option value="Blue">Blue</option>
+          </select>
         <button id="join" type="submit">Join Chat</button>
-      </form>
+        </form>
     </div>
 
     <!-- Main Chat Interface -->
@@ -120,20 +120,20 @@
           <div class="current-user">
             <span id="current-user-name"></span>
           </div>
-        </header>
+      </header>
 
         <!-- Chat Messages -->
         <section class="chat-area">
           <ul class="chat-display"></ul>
-          <p class="activity"></p>
+        <p class="activity"></p>
         </section>
 
         <!-- Message Input -->
         <footer class="message-input">
-          <form class="form-msg">
+        <form class="form-msg">
             <input type="text" id="message" placeholder="Write a message..." required />
             <button type="submit"><i class="fas fa-paper-plane"></i></button>
-          </form>
+        </form>
         </footer>
       </main>
 
@@ -141,7 +141,7 @@
       <aside class="group-info">
         <div class="group-info-header">
           <h3>Members</h3>
-        </div>
+      </div>
         <ul class="user-list"></ul>
       </aside>
     </div>

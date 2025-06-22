@@ -159,7 +159,7 @@ function enterRoom(e) {
       room: chatRoom.value,
     });
     logActivity(nameInput.value, `Joined room: ${chatRoom.value}`);
-  }
+}
 }
 
 function updateJoinedRoomList() {

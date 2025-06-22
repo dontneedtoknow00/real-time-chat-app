@@ -1,4 +1,5 @@
 import express from 'express';
+import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -6,33 +7,30 @@ import axios from 'axios';
 import Message from './models/Message.js';
 import User from './models/User.js';
 import TranslationService from './services/translationService.js';
-import pool from './config/database.js';
+import { pool } from './config/database.js';
 import ActivityLog from './models/ActivityLog.js';
 import Chatroom from './models/Chatroom.js';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = process.env.PORT || 3500;
-const ADMIN = 'Admin';
-
 const app = express();
-app.use(express.static(path.join(__dirname, 'public')));
+const server = createServer(app);
+const io = new Server(server);
+
+// Middleware
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-const expressServer = app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
-});
+// Use environment variable for port (Render requirement)
+const PORT = process.env.PORT || 3000;
 
-const io = new Server(expressServer, {
-  cors: {
-    origin:
-      process.env.NODE_ENV === 'production'
-        ? false
-        : ['http://localhost:5500', 'http://127.0.0.1:5500'],
-  },
-});
+const ADMIN = 'Admin';
 
 // --- Hardcoded preferred languages ---
 const userPreferredLanguages = {
@@ -704,4 +702,8 @@ app.post('/api/login', async (req, res) => {
         console.error('Login error:', error);
         res.status(500).json({ error: 'Login failed' });
     }
+});
+
+server.listen(PORT, () => {
+  console.log(`listening on port ${PORT}`);
 });
