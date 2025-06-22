@@ -1,9 +1,0 @@
-# nixpacks.toml
-
-[phases.install]
-# This command tells Nixpacks to run 'npm install' inside the 'server' directory.
-cmds = ["npm --prefix server install"]
-
-[start]
-# This command tells Nixpacks how to start your application.
-cmd = "npm --prefix server start" 
