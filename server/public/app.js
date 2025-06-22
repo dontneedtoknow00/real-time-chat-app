@@ -26,6 +26,8 @@ const goToRegisterLink = document.getElementById('go-to-register');
 
 // Store user data
 let currentUser = null;
+let joinedRooms = [];
+let currentRoom = null;
 
 // Page navigation
 goToLoginLink.addEventListener('click', (e) => {
@@ -136,19 +138,43 @@ function sendMessage(e) {
 function enterRoom(e) {
   e.preventDefault();
   if (nameInput.value && chatRoom.value) {
+    // Add to joined rooms if not already present
+    if (!joinedRooms.includes(chatRoom.value)) {
+      joinedRooms.push(chatRoom.value);
+      updateJoinedRoomList();
+    }
+    // Set current room
+    currentRoom = chatRoom.value;
     // Show chat interface and hide room selection
     roomSelection.style.display = 'none';
     chatContainer.style.display = 'grid';
-    
     // Set current user name in the header
     currentUserName.textContent = nameInput.value;
-    
+    // Set current room name
+    document.querySelector('.current-room-name').textContent = currentRoom;
+    // Clear chat area for new room
+    chatDisplay.innerHTML = '';
     socket.emit('enterRoom', {
       name: nameInput.value,
       room: chatRoom.value,
     });
     logActivity(nameInput.value, `Joined room: ${chatRoom.value}`);
+  }
 }
+
+function updateJoinedRoomList() {
+  const list = document.querySelector('.joined-room-list');
+  list.innerHTML = '';
+  joinedRooms.forEach(room => {
+    const li = document.createElement('li');
+    li.textContent = room;
+    li.className = room === currentRoom ? 'active' : '';
+    li.onclick = () => {
+      chatRoom.value = room;
+      enterRoom({ preventDefault: () => {} });
+    };
+    list.appendChild(li);
+  });
 }
 
 function logout() {
@@ -231,12 +257,10 @@ socket.on('message', (data) => {
     li.innerHTML = `<div class="post__text">${text}</div>`;
   }
   chatDisplay.appendChild(li);
-
   // Log chat message
   if (name !== 'Admin') {
-    logActivity(name, `Sent message in ${chatRoom.value}`);
+    logActivity(name, `Sent message in ${currentRoom}`);
   }
-
   // Scroll to bottom of chat
   const chatArea = document.querySelector('.chat-area');
   chatArea.scrollTop = chatArea.scrollHeight;
@@ -262,13 +286,15 @@ socket.on('roomList', ({ rooms }) => {
 });
 
 function showUsers(users) {
-  usersList.innerHTML = '<h3>Users in Room</h3>';
+  const userList = document.querySelector('.group-info .user-list');
+  if (!userList) return;
+  userList.innerHTML = '';
   if (users) {
     users.forEach((user) => {
-      usersList.innerHTML += `
-        <div class="user-item">
+      userList.innerHTML += `
+        <li class="user-item">
           <span class="user-name">${user.name}</span>
-        </div>`;
+        </li>`;
     });
   }
 }

@@ -97,38 +97,53 @@
     <!-- Main Chat Interface -->
     <div class="chat-container" style="display: none;">
       <!-- Sidebar -->
-      <div class="sidebar">
-        <div class="user-list"></div>
-        <div class="room-list"></div>
-      </div>
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h2>Chats</h2>
+        </div>
+        <nav class="sidebar-nav">
+          <ul class="joined-room-list"></ul>
+        </nav>
+        <div class="sidebar-footer">
+          <button id="logout" class="logout-btn">Logout</button>
+        </div>
+      </aside>
 
       <!-- Main Chat Area -->
-      <div class="main-chat">
+      <main class="main-chat">
         <!-- Top Bar -->
-        <div class="top-bar">
+        <header class="top-bar">
+          <div class="current-room-name"></div>
           <div class="search-container">
             <input type="text" placeholder="Search..." class="search-input">
           </div>
           <div class="current-user">
             <span id="current-user-name"></span>
-            <button id="logout" class="logout-btn">Logout</button>
           </div>
-        </div>
+        </header>
 
         <!-- Chat Messages -->
-        <div class="chat-area">
+        <section class="chat-area">
           <ul class="chat-display"></ul>
           <p class="activity"></p>
-        </div>
+        </section>
 
         <!-- Message Input -->
-        <div class="message-input">
+        <footer class="message-input">
           <form class="form-msg">
             <input type="text" id="message" placeholder="Write a message..." required />
             <button type="submit"><i class="fas fa-paper-plane"></i></button>
           </form>
+        </footer>
+      </main>
+
+      <!-- Group Info -->
+      <aside class="group-info">
+        <div class="group-info-header">
+          <h3>Members</h3>
         </div>
-      </div>
+        <ul class="user-list"></ul>
+      </aside>
     </div>
 
     
