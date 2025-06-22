@@ -94,31 +94,39 @@ registerForm.addEventListener('submit', async (e) => {
 });
 
 // Handle login
-loginForm.addEventListener('submit', (e) => {
+loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const username = document.getElementById('login-username').value;
   const password = document.getElementById('login-password').value;
 
-  // Check credentials
-  const userData = JSON.parse(localStorage.getItem(username));
-  if (userData && userData.password === password) {
-    currentUser = userData;
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    logActivity(username, 'Logged in');
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await response.json();
+    if (data.success) {
+      // Store user data in localStorage for session management
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
+      logActivity(username, 'Logged in');
 
-    // Redirect admin to admin dashboard
-    if (userData.accountType === 'Admin') {
-      window.location.href = '/admin.html';
-      return;
+      // Redirect admin to admin dashboard
+      if (data.user.user_type === 'Admin') {
+        window.location.href = '/admin.html';
+        return;
+      }
+
+      // Show room selection for regular users
+      loginPage.style.display = 'none';
+      roomSelection.style.display = 'flex';
+      nameInput.value = username;
+      updateRoomSelection();
+    } else {
+      alert('Invalid credentials');
     }
-
-    // Show room selection for regular users
-    loginPage.style.display = 'none';
-    roomSelection.style.display = 'flex';
-    nameInput.value = username;
-    updateRoomSelection();
-  } else {
-    alert('Invalid credentials');
+  } catch (error) {
+    alert('Login failed. Please try again.');
   }
 });
 
