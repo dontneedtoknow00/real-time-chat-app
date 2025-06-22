@@ -323,7 +323,7 @@ function showRooms(rooms) {
 const savedUser = JSON.parse(localStorage.getItem('currentUser'));
 if (savedUser) {
   currentUser = savedUser;
-  if (savedUser.accountType === 'Admin') {
+  if (savedUser.user_type === 'Admin') {
     window.location.href = '/admin.html';
   } else {
     loginPage.style.display = 'none';

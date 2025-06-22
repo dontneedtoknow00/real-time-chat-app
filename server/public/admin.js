@@ -1,6 +1,6 @@
 // Check if user is admin
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-if (!currentUser || currentUser.accountType !== 'Admin') {
+if (!currentUser || currentUser.user_type !== 'Admin') {
     window.location.href = '/index.html';
 }
 
@@ -223,58 +223,59 @@ addChatroomBtn.addEventListener('click', () => {
     chatroomModal.style.display = 'block';
 });
 
-userForm.addEventListener('submit', (e) => {
+userForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const userData = {
         username: document.getElementById('username').value,
         email: document.getElementById('email').value,
         password: document.getElementById('password').value,
-        language: document.getElementById('user-language').value,
-        accountType: document.getElementById('user-type').value
+        preferred_language: document.getElementById('user-language').value,
+        user_type: document.getElementById('user-type').value
     };
-    
-    if (editingUserId) {
-        // Remove old user data
-        localStorage.removeItem(editingUserId);
-        
-        // If this is the current logged-in user, update their session
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (currentUser && currentUser.username === editingUserId) {
-            currentUser.username = userData.username;
-            currentUser.email = userData.email;
-            currentUser.password = userData.password;
-            currentUser.language = userData.language;
-            currentUser.accountType = userData.accountType;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+    try {
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('User added successfully!');
+            userModal.style.display = 'none';
+            // TODO: Refresh user list from backend here
+        } else {
+            alert('Failed to add user: ' + data.error);
         }
-        
-        logActivity(currentUser.username, `Updated user: ${editingUserId} to ${userData.username}`);
+    } catch (error) {
+        alert('Error adding user: ' + error.message);
     }
-    
-    // Store new user data under new username
-    localStorage.setItem(userData.username, JSON.stringify(userData));
-    
-    // Clear editing state and close modal
-    editingUserId = null;
-    userModal.style.display = 'none';
-    displayUsers();
 });
 
-chatroomForm.addEventListener('submit', (e) => {
+chatroomForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const chatroomData = {
         name: document.getElementById('chatroom-name').value,
-        description: document.getElementById('chatroom-description').value,
-        users: []
+        description: document.getElementById('chatroom-description').value
     };
-    
-    if (editingChatroomId) {
-        chatrooms = chatrooms.filter(room => room.name !== editingChatroomId);
-        logActivity(currentUser.username, `Updated chatroom: ${chatroomData.name}`);
+
+    try {
+        const response = await fetch('/api/chatrooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(chatroomData)
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Chatroom created successfully!');
+            chatroomModal.style.display = 'none';
+            // TODO: Refresh chatroom list from backend here
+        } else {
+            alert('Failed to create chatroom: ' + data.error);
+        }
+    } catch (error) {
+        alert('Error creating chatroom: ' + error.message);
     }
-    
-    addChatroom(chatroomData);
-    chatroomModal.style.display = 'none';
 });
 
 activityDate.addEventListener('change', displayActivityLog);
