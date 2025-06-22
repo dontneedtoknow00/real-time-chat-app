@@ -48,4 +48,4 @@ async function testConnection() {
 // Run the test
 testConnection();
 
-export default pool; 
+export { pool }; 

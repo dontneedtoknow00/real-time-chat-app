@@ -1,4 +1,4 @@
-import pool from '../config/database.js';
+import { pool } from '../config/database.js';
 import ActivityLog from './ActivityLog.js';
 import TranslationService from '../services/translationService.js';
 
