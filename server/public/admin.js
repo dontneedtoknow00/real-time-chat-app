@@ -23,22 +23,45 @@ document.querySelectorAll('.close').forEach(closeBtn => {
     });
 });
 
-// User Management
-let users = JSON.parse(localStorage.getItem('users')) || [];
+// User and Chatroom Management (Database-driven)
+let users = [];
+let chatrooms = [];
 let editingUserId = null;
+let editingChatroomName = null;
+
+// Fetch all users from backend
+async function fetchUsers() {
+    try {
+        const res = await fetch('/api/users');
+        users = await res.json();
+        displayUsers();
+    } catch (err) {
+        alert('Failed to fetch users');
+    }
+}
+
+// Fetch all chatrooms from backend
+async function fetchChatrooms() {
+    try {
+        const res = await fetch('/api/chatrooms');
+        chatrooms = await res.json();
+        displayChatrooms();
+        updateChatroomOptions();
+    } catch (err) {
+        alert('Failed to fetch chatrooms');
+    }
+}
 
 function displayUsers() {
     const tbody = document.getElementById('users-table-body');
     tbody.innerHTML = '';
-    
-    const allUsers = getAllUsers();
-    allUsers.forEach(user => {
+    users.forEach(user => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${user.username}</td>
             <td>${user.email}</td>
-            <td>${user.accountType}</td>
-            <td>${user.language}</td>
+            <td>${user.user_type}</td>
+            <td>${user.preferred_language}</td>
             <td>
                 <button class="action-btn edit-btn" onclick="editUser('${user.username}')">Edit</button>
                 <button class="action-btn delete-btn" onclick="deleteUser('${user.username}')">Delete</button>
@@ -48,68 +71,15 @@ function displayUsers() {
     });
 }
 
-function getAllUsers() {
-    const users = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        try {
-            const value = JSON.parse(localStorage.getItem(key));
-            if (value && value.username && value.email) {
-                users.push(value);
-            }
-        } catch (e) {
-            continue;
-        }
-    }
-    return users;
-}
-
-function addUser(userData) {
-    localStorage.setItem(userData.username, JSON.stringify(userData));
-    logActivity(currentUser.username, `Added new user: ${userData.username}`);
-    displayUsers();
-}
-
-function editUser(username) {
-    const userData = JSON.parse(localStorage.getItem(username));
-    if (userData) {
-        document.getElementById('username').value = userData.username;
-        document.getElementById('email').value = userData.email;
-        document.getElementById('user-language').value = userData.language;
-        document.getElementById('user-type').value = userData.accountType;
-        document.getElementById('password').value = userData.password;
-        editingUserId = username;
-        document.getElementById('user-modal-title').textContent = 'Edit User';
-        userModal.style.display = 'block';
-    }
-}
-
-function deleteUser(username) {
-    if (confirm('Are you sure you want to delete this user?')) {
-        localStorage.removeItem(username);
-        logActivity(currentUser.username, `Deleted user: ${username}`);
-        displayUsers();
-    }
-}
-
-// Chatroom Management
-let chatrooms = JSON.parse(localStorage.getItem('chatrooms')) || [
-    { name: 'Red', description: 'Red Room', users: [] },
-    { name: 'Green', description: 'Green Room', users: [] },
-    { name: 'Blue', description: 'Blue Room', users: [] }
-];
-let editingChatroomId = null;
-
 function displayChatrooms() {
     const tbody = document.getElementById('chatrooms-table-body');
     tbody.innerHTML = '';
-    
     chatrooms.forEach(room => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${room.name}</td>
-            <td>${room.description}</td>
-            <td>${room.users.length}</td>
+            <td>${room.description || ''}</td>
+            <td></td>
             <td>
                 <button class="action-btn edit-btn" onclick="editChatroom('${room.name}')">Edit</button>
                 <button class="action-btn delete-btn" onclick="deleteChatroom('${room.name}')">Delete</button>
@@ -119,46 +89,160 @@ function displayChatrooms() {
     });
 }
 
-function addChatroom(chatroomData) {
-    chatrooms.push(chatroomData);
-    localStorage.setItem('chatrooms', JSON.stringify(chatrooms));
-    logActivity(currentUser.username, `Created new chatroom: ${chatroomData.name}`);
-    displayChatrooms();
-    updateChatroomOptions();
+window.editUser = function(username) {
+    const user = users.find(u => u.username === username);
+    if (user) {
+        document.getElementById('username').value = user.username;
+        document.getElementById('email').value = user.email;
+        document.getElementById('user-language').value = user.preferred_language;
+        document.getElementById('user-type').value = user.user_type;
+        document.getElementById('password').value = '';
+        editingUserId = user.username;
+        document.getElementById('user-modal-title').textContent = 'Edit User';
+        userModal.style.display = 'block';
+    }
 }
 
-function editChatroom(name) {
+window.deleteUser = async function(username) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        try {
+            const res = await fetch(`/api/users/${username}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                alert('User deleted successfully!');
+                fetchUsers();
+            } else {
+                alert('Failed to delete user: ' + data.error);
+            }
+        } catch (err) {
+            alert('Error deleting user: ' + err.message);
+        }
+    }
+}
+
+window.editChatroom = function(name) {
     const room = chatrooms.find(r => r.name === name);
     if (room) {
         document.getElementById('chatroom-name').value = room.name;
-        document.getElementById('chatroom-description').value = room.description;
-        editingChatroomId = name;
+        document.getElementById('chatroom-description').value = room.description || '';
+        editingChatroomName = room.name;
         document.getElementById('chatroom-modal-title').textContent = 'Edit Chatroom';
         chatroomModal.style.display = 'block';
     }
 }
 
-function deleteChatroom(name) {
+window.deleteChatroom = async function(name) {
     if (confirm('Are you sure you want to delete this chatroom?')) {
-        chatrooms = chatrooms.filter(room => room.name !== name);
-        localStorage.setItem('chatrooms', JSON.stringify(chatrooms));
-        logActivity(currentUser.username, `Deleted chatroom: ${name}`);
-        displayChatrooms();
-        updateChatroomOptions();
+        try {
+            const res = await fetch(`/api/chatrooms/${name}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                alert('Chatroom deleted successfully!');
+                fetchChatrooms();
+            } else {
+                alert('Failed to delete chatroom: ' + data.error);
+            }
+        } catch (err) {
+            alert('Error deleting chatroom: ' + err.message);
+        }
     }
 }
 
-function updateChatroomOptions() {
-    // Update chatroom options in the main chat interface
-    const roomSelect = document.querySelector('#room');
-    if (roomSelect) {
-        const currentValue = roomSelect.value;
-        roomSelect.innerHTML = '<option value="" disabled selected>Select Room</option>';
-        chatrooms.forEach(room => {
-            roomSelect.innerHTML += `<option value="${room.name}">${room.name}</option>`;
-        });
-        if (currentValue) roomSelect.value = currentValue;
+userForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const userData = {
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        preferred_language: document.getElementById('user-language').value,
+        user_type: document.getElementById('user-type').value
+    };
+    try {
+        let response, data;
+        if (editingUserId) {
+            // Edit user
+            response = await fetch(`/api/users/${editingUserId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+            data = await response.json();
+            if (data.success) {
+                alert('User updated successfully!');
+                userModal.style.display = 'none';
+                editingUserId = null;
+                fetchUsers();
+            } else {
+                alert('Failed to update user: ' + data.error);
+            }
+        } else {
+            // Add user
+            response = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+            data = await response.json();
+            if (data.success) {
+                alert('User added successfully!');
+                userModal.style.display = 'none';
+                fetchUsers();
+            } else {
+                alert('Failed to add user: ' + data.error);
+            }
+        }
+    } catch (error) {
+        alert('Error saving user: ' + error.message);
     }
+});
+
+chatroomForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const chatroomData = {
+        name: document.getElementById('chatroom-name').value,
+        description: document.getElementById('chatroom-description').value
+    };
+    try {
+        let response, data;
+        if (editingChatroomName) {
+            // Edit chatroom
+            response = await fetch(`/api/chatrooms/${editingChatroomName}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(chatroomData)
+            });
+            data = await response.json();
+            if (data.success) {
+                alert('Chatroom updated successfully!');
+                chatroomModal.style.display = 'none';
+                editingChatroomName = null;
+                fetchChatrooms();
+            } else {
+                alert('Failed to update chatroom: ' + data.error);
+            }
+        } else {
+            // Add chatroom
+            response = await fetch('/api/chatrooms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(chatroomData)
+            });
+            data = await response.json();
+            if (data.success) {
+                alert('Chatroom created successfully!');
+                chatroomModal.style.display = 'none';
+                fetchChatrooms();
+            } else {
+                alert('Failed to create chatroom: ' + data.error);
+            }
+        }
+    } catch (error) {
+        alert('Error saving chatroom: ' + error.message);
+    }
+});
+
+function updateChatroomOptions() {
+    // Update chatroom options in the main chat interface (if needed)
 }
 
 // Activity Logging
@@ -217,65 +301,10 @@ addUserBtn.addEventListener('click', () => {
 });
 
 addChatroomBtn.addEventListener('click', () => {
-    editingChatroomId = null;
+    editingChatroomName = null;
     chatroomForm.reset();
     document.getElementById('chatroom-modal-title').textContent = 'Create New Chatroom';
     chatroomModal.style.display = 'block';
-});
-
-userForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const userData = {
-        username: document.getElementById('username').value,
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value,
-        preferred_language: document.getElementById('user-language').value,
-        user_type: document.getElementById('user-type').value
-    };
-
-    try {
-        const response = await fetch('/api/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        });
-        const data = await response.json();
-        if (data.success) {
-            alert('User added successfully!');
-            userModal.style.display = 'none';
-            // TODO: Refresh user list from backend here
-        } else {
-            alert('Failed to add user: ' + data.error);
-        }
-    } catch (error) {
-        alert('Error adding user: ' + error.message);
-    }
-});
-
-chatroomForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const chatroomData = {
-        name: document.getElementById('chatroom-name').value,
-        description: document.getElementById('chatroom-description').value
-    };
-
-    try {
-        const response = await fetch('/api/chatrooms', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(chatroomData)
-        });
-        const data = await response.json();
-        if (data.success) {
-            alert('Chatroom created successfully!');
-            chatroomModal.style.display = 'none';
-            // TODO: Refresh chatroom list from backend here
-        } else {
-            alert('Failed to create chatroom: ' + data.error);
-        }
-    } catch (error) {
-        alert('Error creating chatroom: ' + error.message);
-    }
 });
 
 activityDate.addEventListener('change', displayActivityLog);
@@ -286,9 +315,9 @@ adminLogout.addEventListener('click', () => {
     window.location.href = '/index.html';
 });
 
-// Initialize displays
-displayUsers();
-displayChatrooms();
+// Initial fetch
+fetchUsers();
+fetchChatrooms();
 displayActivityLog();
 
 // Update chatroom options in main chat
